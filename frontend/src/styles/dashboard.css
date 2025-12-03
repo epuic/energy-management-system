@@ -1,0 +1,63 @@
+.dashboard-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  font-family: system-ui, Arial, sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f4f4f4;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 20px;
+}
+
+.dashboard-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dashboard-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.logout-button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.logout-button:hover {
+  background-color: #eee;
+}
+
+.dashboard-content {
+  padding: 24px;
+}
+
+.dashboard-content h3 {
+  margin-top: 0;
+}
+
+.dashboard-actions {
+  margin-top: 20px;
+}
+
+.dashboard-actions ul {
+  margin-top: 8px;
+  padding-left: 20px;
+}

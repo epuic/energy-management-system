@@ -1,0 +1,30 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  background: #f4f4f4;
+  border-bottom: 1px solid #ddd;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar button {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.navbar button:hover {
+  background: #eee;
+}
+
+/* src/styles/navbar.css */
+.navbar-link { margin-right: 12px; text-decoration: none; color: #0b57d0; }
+.navbar-link:hover { text-decoration: underline; }
+

@@ -1,0 +1,111 @@
+
+services:
+  user-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${USER_DB}
+    ports:
+      - "5433:5432"
+    networks:
+      - ems
+
+  device-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DEVICE_DB}
+    ports:
+      - "5434:5432"
+    networks:
+      - ems
+
+  auth-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB}
+    ports:
+      - "5435:5432"
+    networks:
+      - ems
+
+  auth-service:
+    build:
+      context: ./auth-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/${AUTH_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      SERVER_PORT: 8083
+    depends_on:
+      - auth-db
+    networks:
+      - ems
+
+  user-service:
+    build:
+      context: ./user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/${USER_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      SERVER_PORT: 8081
+    depends_on:
+      - user-db
+    networks:
+      - ems
+
+  device-service:
+    build:
+      context: ./device-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://device-db:5432/${DEVICE_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      SERVER_PORT: 8082
+    depends_on:
+      - device-db
+    networks:
+      - ems
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      SERVER_PORT: 8080
+      AUTH_URI: http://auth-service:8083
+      USER_URI: http://user-service:8081
+      DEVICE_URI: http://device-service:8082
+    depends_on:
+      - auth-service
+      - user-service
+      - device-service
+    ports:
+      - "8080:8080"
+    networks:
+      - ems
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ems-frontend:latest
+    container_name: ems-frontend
+    depends_on:
+      - gateway-service
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    networks:
+      - ems
+
+networks:
+  ems: {}
