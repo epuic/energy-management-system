@@ -86,5 +86,7 @@ This architecture supports:
 - Traefik API Gateway
 - Environment variable configuration for containerized services
 
+![descriere](/diagram.png)
+
 ---
 
