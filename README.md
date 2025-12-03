@@ -1,96 +1,90 @@
 # Energy Management System – Distributed Microservices Platform
 
-A full microservices-based **Energy Management System** designed to manage users, smart metering devices, and authentication flows. The system is built with **independent containerized services**, each with its own database, and exposed through a secure **API Gateway** enforcing authentication, authorization, and routing rules.  
-This project demonstrates skills in **distributed architectures, REST APIs, role-based access, Docker deployment, and secure backend communication**.
+This project implements a distributed, containerized Energy Management System built using independent microservices, each responsible for a specific domain of the platform. All backend services communicate through REST APIs and are exposed via an API Gateway that enforces authentication, authorization, and request routing. The system demonstrates clean backend architecture, secure communication using JWT, full-stack integration, and deployment with Docker.
 
 ---
 
-## 🚀 Features
+## Features
 
-### 👤 User Roles & Authentication
-- Secure login & registration using **JWT**
-- **Role-based access control** (Admin & Client)
-- API Gateway with token validation and permission checks
-- Secure credential storage and session management
+### User Roles and Authentication
+- Secure login and registration using JWT
+- Role-based access control (Admin and Client)
+- API Gateway performs token validation and permission checks
+- Secure credential handling and stateless communication
 
-### 🧩 Microservices
-- **Authentication Service** – login, registration, token issuing  
-- **User Service** – CRUD operations for users  
-- **Device Service** – CRUD operations for devices & device–user mapping  
-- Each service has **its own database** for isolation and scalability
+### Microservices
+- Authentication Service: handles login, register, and token issuance
+- User Service: CRUD operations for user accounts
+- Device Service: CRUD operations for devices and mapping between users and devices
+- Each microservice has its own PostgreSQL database for isolation and reliability
 
-### 🌐 Frontend
-- Built with **ReactJS**
+### Frontend Application
+- Built using ReactJS
 - Admin dashboard:
-  - CRUD for users
-  - CRUD for devices
-  - Assign devices to users
+  - User management (create, update, delete)
+  - Device management (create, update, delete)
+  - Assigning devices to users
 - Client dashboard:
-  - View assigned devices and consumption limits
+  - Viewing assigned devices and their details
 
-### 🛡️ API Gateway & Reverse Proxy
-- Implemented using **Traefik**
-- Routes all requests to correct services
-- Enforces authentication and security policies
-- Validates requests before forwarding
+### API Gateway and Reverse Proxy
+- Implemented using Traefik
+- Central entry point for all requests
+- Routes traffic to the correct service
+- Applies authentication and authorization rules
 
-### 🐳 Docker Deployment
-- Fully containerized platform using **Docker**
+### Docker Deployment
+- Full platform runs in isolated containers
 - Docker Compose orchestrates:
-  - Microservices
-  - Databases
+  - Backend microservices
+  - PostgreSQL databases
   - API Gateway
   - Frontend
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
-High-level system design:
-- ReactJS Frontend → API Gateway → Microservices → Databases  
-- Communication is done via **REST**  
-- Stateless JWT authentication between frontend and backend  
+The system follows a distributed architecture pattern with the following communication flow:
+- ReactJS Frontend communicates with the API Gateway
+- API Gateway routes authenticated requests to the appropriate microservice
+- Microservices connect to dedicated PostgreSQL databases
+- Stateless authentication with JWT ensures scalable, secure communications
 
-Architecture benefits:
-- Independent deployment  
-- Loose coupling  
-- Scalability  
-- Maintainability  
+This architecture supports:
+- Independent service deployment
+- Loose coupling between components
+- Scalability and maintainability
+- Fault isolation between services
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 ### Backend
-- **Java Spring Boot**
-- REST API (Controller → Service → Repository)
-- ORM (JPA / Hibernate)
-- JWT Authentication
+- Java Spring Boot
+- REST API architecture
+- JPA / Hibernate ORM
+- JWT-based authentication
 - Role-based authorization
 
 ### Frontend
-- **ReactJS**
-- Axios & API integration
-- Protected routes & role-based UI
-- Form handling and validation
+- ReactJS
+- Axios for API communication
+- Protected routes based on user role
+- Dynamic UI rendering for Admin and Client
 
 ### Databases
-- **MySQL / PostgreSQL**
+- PostgreSQL
 - One database per microservice:
   - User Database
   - Device Database
-  - Credential Database
+  - Credentials Database
 
 ### Infrastructure
-- **Docker** & Docker Compose
-- **Traefik** API Gateway
-- Environment-based configuration
+- Docker and Docker Compose
+- Traefik API Gateway
+- Environment variable configuration for containerized services
 
 ---
 
-## ▶️ How to Run the Project
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/your-username/energy-management-system.git
-cd energy-management-system
