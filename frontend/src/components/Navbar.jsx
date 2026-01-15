@@ -6,28 +6,41 @@ export default function Navbar() {
   const { isLoggedIn, user, hasRole, logout } = useAuth();
 
   return (
-    <nav className="navbar">
-      <h3>
-        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-          Energy Management
+    <nav className="ems-navbar">
+      <h3 className="logo">
+        <Link to="/" className="logo-link">
+          <i className="fas fa-bolt"></i> EMS
         </Link>
       </h3>
 
       {isLoggedIn && (
-        <div className="navbar-right">
-          {/* useri */}
-          <Link to="/my-devices" className="navbar-link">My Devices</Link>
+        <div className="navbar-right-content">
+          <div className="user-links">
+            {/* useri */}
+            <Link to="/my-devices" className="nav-link">
+              <i className="fas fa-tablet-alt"></i> Dispozitivele Mele
+            </Link>
 
-          {/* ADMIN */}
-          {hasRole("ADMIN") && (
-            <>
-              <Link to="/users" className="navbar-link">Users</Link>
-              <Link to="/devices" className="navbar-link">Devices</Link>
-            </>
-          )}
+            {/* ADMIN */}
+            {hasRole("ADMIN") && (
+              <>
+                <Link to="/users" className="nav-link">
+                  <i className="fas fa-users-cog"></i> Utilizatori
+                </Link>
+                <Link to="/devices" className="nav-link">
+                  <i className="fas fa-cogs"></i> Administrare Device-uri
+                </Link>
+              </>
+            )}
+          </div>
 
-          <span>{user?.username}</span>
-          <button onClick={logout}>Logout</button>
+          <div className="user-info-chip">
+            <i className="fas fa-user-circle"></i> {user?.username}
+          </div>
+
+          <button onClick={logout} className="btn-logout">
+            <i className="fas fa-sign-out-alt"></i>
+          </button>
         </div>
       )}
     </nav>

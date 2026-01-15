@@ -4,6 +4,7 @@ package com.example.user_service.controller;
 import com.example.user_service.dto.UserCreateWithIdRequest;
 import com.example.user_service.dto.UserDto;
 import com.example.user_service.model.User;
+import com.example.user_service.service.SyncProducerService;
 import com.example.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService service;
+    private final SyncProducerService syncProducerService; // 👈 NOU
 
     @GetMapping
     public List<UserDto> all() {
@@ -36,12 +38,16 @@ public class UserController {
 
     @PostMapping
     public UserDto create(@RequestBody UserDto dto) {
-        return service.create(dto);
+        UserDto createdUser = service.create(dto);
+        syncProducerService.sendUserSync(createdUser, "CREATED"); // 👈 NOU
+        return createdUser;
     }
 
     @PutMapping("/{id}")
     public UserDto update(@PathVariable Long id, @RequestBody UserDto dto) {
-        return service.update(id, dto);
+        UserDto updatedUser = service.update(id, dto);
+        syncProducerService.sendUserSync(updatedUser, "UPDATED"); // 👈 NOU
+        return updatedUser;
     }
 
     @DeleteMapping("/{id}")

@@ -16,6 +16,11 @@ spring:
         - id: devices
           uri: ${DEVICE_URI:http://device-service:8082}
           predicates: [ Path=/api/devices/** ]
+        - id: monitoring-service
+          uri: ${MONITORING_URI:http://monitoring-service:8084} # Assuming a Load Balancer or service name
+          predicates:
+            - Path=/api/monitoring/**
+
 
 jwt:
   secret: ${JWT_SECRET:change-me}

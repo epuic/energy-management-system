@@ -8,7 +8,7 @@ import {
   deleteUserInUserDbApi,
   deleteUserInAuthDbApi,
 } from "../api/userMgmtApi";
-import "../styles/users.css";
+import "../styles/table-pages.css"; // Stiluri comune pentru tabele
 
 const ROLES = ["ADMIN", "CLIENT"];
 
@@ -22,7 +22,7 @@ export default function UsersPage() {
   const [form, setForm] = useState({ id: null, username: "", role: "CLIENT", password: "" });
   const [submitting, setSubmitting] = useState(false);
 
-  const title = useMemo(() => (mode === "add" ? "Add user" : "Edit user"), [mode]);
+  const title = useMemo(() => (mode === "add" ? "Adaugă Utilizator Nou" : `Editează Utilizator ${form.username}`), [mode, form.username]);
 
   const load = async () => {
     setLoading(true);
@@ -63,6 +63,12 @@ export default function UsersPage() {
 
     try {
       if (mode === "add") {
+        const pwd = (form.password || "").trim();
+        if (!pwd) {
+          setErr("Parola este obligatorie la creare.");
+          return;
+        }
+
         const r1 = await createUserInUserDbApi({ username: form.username.trim(), role: form.role });
         const created = r1.data;
 
@@ -70,16 +76,16 @@ export default function UsersPage() {
           await createUserInAuthDbWithIdApi({
             id: created.id,
             username: created.username,
-            password: (form.password || "").trim(),
+            password: pwd,
             role: created.role,
           });
         } catch (e2) {
-          try { await deleteUserInUserDbApi(created.id); } catch {}
-          if (e2?.response?.status === 409 || e2?.response?.status === 400) {
-            setErr("Username există deja în auth. Alege alt username.");
-          } else {
-            setErr("Eroare la sincronizare în auth. Încearcă din nou.");
-          }
+          // Rollback user-db
+          try { await deleteUserInUserDbApi(created.id); } catch (e) { console.error("Rollback failed:", e); }
+          setErr(e2?.response?.status === 409 || e2?.response?.status === 400
+            ? "Username există deja. Alege alt username."
+            : "Eroare la sincronizare în auth. Încearcă din nou."
+          );
           return;
         }
 
@@ -95,11 +101,10 @@ export default function UsersPage() {
         try {
           await updateUserInAuthDbApi(form.id, authPayload);
         } catch (e2) {
-          if (e2?.response?.status === 409 || e2?.response?.status === 400) {
-            setErr("Username există deja în auth. Alege alt username.");
-          } else {
-            setErr("Eroare la actualizare în auth.");
-          }
+          setErr(e2?.response?.status === 409 || e2?.response?.status === 400
+            ? "Username există deja în auth. Alege alt username."
+            : "Eroare la actualizare în auth."
+          );
           return;
         }
       }
@@ -107,18 +112,17 @@ export default function UsersPage() {
       setIsOpen(false);
       await load();
     } catch (e) {
-      if (e?.response?.status === 409 || e?.response?.status === 400) {
-        setErr("Username există deja în user-db.");
-      } else {
-        setErr(mode === "add" ? "Eroare la creare user." : "Eroare la actualizare user.");
-      }
+      setErr(e?.response?.status === 409 || e?.response?.status === 400
+        ? "Username există deja în user-db."
+        : (mode === "add" ? "Eroare la creare user." : "Eroare la actualizare user.")
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   const onDelete = async (u) => {
-    if (!window.confirm(`Ștergi utilizatorul "${u.username}"?`)) return;
+    if (!window.confirm(`Ești sigur că vrei să ștergi utilizatorul "${u.username}" (#${u.id})?`)) return;
     setErr("");
     try {
       await deleteUserInAuthDbApi(u.id);
@@ -130,43 +134,51 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="users-page">
-      <div className="users-header">
-        <h1>Users</h1>
-        <button onClick={openAdd}>+ Add user</button>
-      </div>
+    <div className="data-page-container">
+      <header className="data-page-header">
+        <h1>Administrare Utilizatori</h1>
+        <button className="btn btn-primary" onClick={openAdd}>
+          <i className="fas fa-plus-circle"></i> Adaugă Utilizator
+        </button>
+      </header>
 
-      {err && <div className="users-error">{err}</div>}
+      {err && <div className="alert-error">{err}</div>}
 
       {loading ? (
-        <div className="users-loading">Se încarcă...</div>
+        <div className="loading-state">
+          <i className="fas fa-sync-alt fa-spin"></i> Se încarcă...
+        </div>
       ) : (
-        <div className="users-table-wrapper">
-          <table className="users-table">
+        <div className="table-wrapper">
+          <table className="data-table">
             <thead>
               <tr>
-                <th>ID</th>
+                <th className="th-id">ID</th>
                 <th>Username</th>
-                <th>Role</th>
-                <th style={{ width: 180 }}>Actions</th>
+                <th>Rol</th>
+                <th className="th-actions">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={4} style={{ textAlign: "center" }}>Nu există utilizatori.</td>
+                  <td colSpan={4} style={{ textAlign: "center" }}>Nu există utilizatori înregistrați.</td>
                 </tr>
               ) : (
                 users.map((u) => (
                   <tr key={u.id}>
-                    <td>{u.id}</td>
-                    <td>{u.username}</td>
+                    <td className="td-id">{u.id}</td>
+                    <td className="td-username">{u.username}</td>
                     <td>
-                      <span className={`badge role-${u.role.toLowerCase()}`}>{u.role}</span>
+                      <span className={`role-badge role-${u.role.toLowerCase()}`}>{u.role}</span>
                     </td>
-                    <td className="users-actions">
-                      <button onClick={() => openEdit(u)}>Edit</button>
-                      <button className="danger" onClick={() => onDelete(u)}>Delete</button>
+                    <td className="td-actions">
+                      <button className="btn btn-icon btn-edit" onClick={() => openEdit(u)} title="Editează">
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button className="btn btn-icon btn-danger" onClick={() => onDelete(u)} title="Șterge">
+                        <i className="fas fa-trash-alt"></i>
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -176,48 +188,51 @@ export default function UsersPage() {
         </div>
       )}
 
+      {/* Modal Add/Edit */}
       {isOpen && (
         <div className="modal-backdrop" onClick={() => !submitting && setIsOpen(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{title}</h3>
-              <button className="icon" onClick={() => !submitting && setIsOpen(false)}>&times;</button>
+              <button className="btn-icon btn-close" onClick={() => !submitting && setIsOpen(false)}>&times;</button>
             </div>
             <form className="modal-form" onSubmit={onSubmit}>
-              <label>
-                Username
+              <div className="form-group">
+                <label>Username</label>
                 <input
                   name="username"
                   value={form.username}
                   onChange={onChange}
-                  placeholder="username"
+                  placeholder="Introdu username"
                   required
                 />
-              </label>
+              </div>
 
-              <label>
-                Role
+              <div className="form-group">
+                <label>Rol</label>
                 <select name="role" value={form.role} onChange={onChange}>
                   {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
-              </label>
+              </div>
 
-              <label>
-                Password {mode === "add" ? "(obligatoriu)" : "(lasă gol pentru a păstra)"}
+              <div className="form-group">
+                <label>Parolă {mode === "add" ? " (obligatoriu)" : " (lasă gol pentru a păstra)"}</label>
                 <input
                   name="password"
                   type="password"
                   value={form.password}
                   onChange={onChange}
-                  placeholder={mode === "add" ? "setează o parolă" : "noua parolă (opțional)"}
+                  placeholder={mode === "add" ? "Setează o parolă" : "Noua parolă (opțional)"}
                   required={mode === "add"}
                 />
-              </label>
+              </div>
 
-              <div className="modal-actions">
-                <button type="button" onClick={() => !submitting && setIsOpen(false)}>Cancel</button>
-                <button type="submit" disabled={submitting}>
-                  {submitting ? "Se salvează..." : "Save"}
+              <div className="modal-footer-actions">
+                <button type="button" className="btn btn-secondary" onClick={() => !submitting && setIsOpen(false)}>
+                  Anulează
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={submitting}>
+                  {submitting ? <><i className="fas fa-spinner fa-spin"></i> Salvare...</> : <><i className="fas fa-save"></i> Salvează</>}
                 </button>
               </div>
             </form>

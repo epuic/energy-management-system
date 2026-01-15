@@ -27,7 +27,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         if (path.startsWith("/api/auth/")
                 || path.equals("/api/users/create-with-id")
-                || path.equals("/api/users/me")) {
+                || path.equals("/api/users/me")
+                || path.equals("/api/monitoring/**")) {
             return chain.filter(exchange);
         }
 

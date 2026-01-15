@@ -1,6 +1,63 @@
-.register-container { max-width: 480px; margin: 40px auto; padding: 24px; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
-.register-title { margin: 0 0 16px; text-align: center; }
-.register-form { display: grid; gap: 12px; }
-.register-button { margin-top: 8px; }
-.register-msg { margin-top: 12px; color: #1a7f37; }
-.register-back { margin-top: 12px; text-align: center; }
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+}
+
+.register-title {
+  margin-bottom: 40px;
+  color: var(--primary-dark);
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.register-form {
+  background-color: var(--card-bg);
+  padding: 50px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-top: 4px solid var(--accent-color);
+}
+
+.register-form input {
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.register-form input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
+  outline: none;
+}
+
+.register-button {
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.register-msg {
+  color: var(--success-color);
+  text-align: center;
+  margin-top: 25px;
+  font-weight: 600;
+  background-color: #e8f8f0;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #d0e9d6;
+}
+
+.register-back {
+  margin-top: 25px;
+  font-size: 1rem;
+}

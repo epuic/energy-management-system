@@ -13,6 +13,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(ex -> ex
                         .pathMatchers("/api/auth/**").permitAll()
+                        .pathMatchers("/consumption/**").permitAll()
                         .anyExchange().permitAll())
                 .build();
     }

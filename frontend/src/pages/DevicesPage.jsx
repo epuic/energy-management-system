@@ -6,17 +6,17 @@ import {
   deleteDeviceApi,
   listUsersApi,
 } from "../api/deviceApi";
-import "../styles/devices.css";
+import "../styles/table-pages.css"; // Stiluri comune pentru tabele
 
 export default function DevicesPage() {
   const [devices, setDevices] = useState([]);
-  const [users, setUsers] = useState([]); // pentru select user
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
   // modal/form
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState("add"); // "add" | "edit"
+  const [mode, setMode] = useState("add");
   const [form, setForm] = useState({
     id: null,
     name: "",
@@ -25,12 +25,13 @@ export default function DevicesPage() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const title = useMemo(() => (mode === "add" ? "Add device" : "Edit device"), [mode]);
+  const title = useMemo(() => (mode === "add" ? "Adaugă Device Nou" : `Editează Device ${form.name}`), [mode, form.name]);
 
   const loadAll = async () => {
     setLoading(true);
     setErr("");
     try {
+      // Rulează ambele apeluri în paralel
       const [dres, ures] = await Promise.all([listDevicesApi(), listUsersApi()]);
       setDevices(dres.data || []);
       setUsers(ures.data || []);
@@ -70,12 +71,14 @@ export default function DevicesPage() {
     setSubmitting(true);
     setErr("");
 
-    // normalizări
+    const selectedUser = users.find(u => u.id === Number(form.userId));
+
     const payload = {
       name: String(form.name).trim(),
       maximumConsumption:
         form.maximumConsumption === "" ? null : Number(form.maximumConsumption),
       userId: form.userId === "" ? null : Number(form.userId),
+      username: selectedUser ? selectedUser.username : null
     };
 
     try {
@@ -86,15 +89,16 @@ export default function DevicesPage() {
       }
       setIsOpen(false);
       await loadAll();
-    } catch {
+    } catch (e) {
       setErr(mode === "add" ? "Eroare la creare device." : "Eroare la actualizare device.");
+      console.error("Eroare API:", e);
     } finally {
       setSubmitting(false);
     }
   };
 
   const onDelete = async (d) => {
-    if (!window.confirm(`Ștergi device-ul "${d.name}"?`)) return;
+    if (!window.confirm(`Ești sigur că ștergi device-ul "${d.name}" (#${d.id})?`)) return;
     setErr("");
     try {
       await deleteDeviceApi(d.id);
@@ -105,51 +109,59 @@ export default function DevicesPage() {
   };
 
   return (
-    <div className="devices-page">
-      <div className="devices-header">
-        <h1>Devices</h1>
-        <button onClick={openAdd}>+ Add device</button>
-      </div>
+    <div className="data-page-container">
+      <header className="data-page-header">
+        <h1>Administrare Device-uri</h1>
+        <button className="btn btn-primary" onClick={openAdd}>
+          <i className="fas fa-plus-circle"></i> Adaugă Device
+        </button>
+      </header>
 
-      {err && <div className="devices-error">{err}</div>}
+      {err && <div className="alert-error">{err}</div>}
 
       {loading ? (
-        <div className="devices-loading">Se încarcă...</div>
+        <div className="loading-state">
+          <i className="fas fa-sync-alt fa-spin"></i> Se încarcă...
+        </div>
       ) : (
-        <div className="devices-table-wrapper">
-          <table className="devices-table">
+        <div className="table-wrapper">
+          <table className="data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Max Consumption</th>
-                <th>Assigned User</th>
-                <th style={{ width: 180 }}>Actions</th>
+                <th className="th-id">ID</th>
+                <th>Nume Device</th>
+                <th>Consum Maxim (kWh)</th>
+                <th>Utilizator Asignat</th>
+                <th className="th-actions">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
               {devices.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: "center" }}>Nu există device-uri.</td>
+                  <td colSpan={5} style={{ textAlign: "center" }}>Nu există device-uri înregistrate.</td>
                 </tr>
               ) : (
                 devices.map((d) => {
                   const u = users.find((x) => x.id === d.userId);
                   return (
                     <tr key={d.id}>
-                      <td>{d.id}</td>
+                      <td className="td-id">{d.id}</td>
                       <td>{d.name}</td>
-                      <td>{d.maximumConsumption ?? "-"}</td>
+                      <td className="td-consumption">{d.maximumConsumption ? `${d.maximumConsumption} kWh` : "-"}</td>
                       <td>
                         {d.userId ? (
-                          <span className="user-chip">
-                            {u ? `${u.username} (#${u.id})` : `User #${d.userId}`}
+                          <span className="user-assignment-chip">
+                            <i className="fas fa-user-tag"></i> {u ? `${u.username} (#${u.id})` : `User #${d.userId}`}
                           </span>
-                        ) : <em>—</em>}
+                        ) : <em>— Neasignat —</em>}
                       </td>
-                      <td className="devices-actions">
-                        <button onClick={() => openEdit(d)}>Edit</button>
-                        <button className="danger" onClick={() => onDelete(d)}>Delete</button>
+                      <td className="td-actions">
+                        <button className="btn btn-icon btn-edit" onClick={() => openEdit(d)} title="Editează">
+                          <i className="fas fa-edit"></i>
+                        </button>
+                        <button className="btn btn-icon btn-danger" onClick={() => onDelete(d)} title="Șterge">
+                          <i className="fas fa-trash-alt"></i>
+                        </button>
                       </td>
                     </tr>
                   );
@@ -163,15 +175,15 @@ export default function DevicesPage() {
       {/* Modal Add/Edit */}
       {isOpen && (
         <div className="modal-backdrop" onClick={() => !submitting && setIsOpen(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{title}</h3>
-              <button className="icon" onClick={() => !submitting && setIsOpen(false)}>&times;</button>
+              <button className="btn-icon btn-close" onClick={() => !submitting && setIsOpen(false)}>&times;</button>
             </div>
 
             <form className="modal-form" onSubmit={onSubmit}>
-              <label>
-                Name
+              <div className="form-group">
+                <label>Nume Device</label>
                 <input
                   name="name"
                   value={form.name}
@@ -179,10 +191,10 @@ export default function DevicesPage() {
                   placeholder="ex: Boiler, AC living, etc."
                   required
                 />
-              </label>
+              </div>
 
-              <label>
-                Maximum consumption (kWh)
+              <div className="form-group">
+                <label>Consum Maxim (kWh)</label>
                 <input
                   name="maximumConsumption"
                   type="number"
@@ -192,10 +204,10 @@ export default function DevicesPage() {
                   onChange={onChange}
                   placeholder="ex: 2.5"
                 />
-              </label>
+              </div>
 
-              <label>
-                Assigned user (opțional)
+              <div className="form-group">
+                <label>Utilizator Asignat (opțional)</label>
                 <select name="userId" value={form.userId} onChange={onChange}>
                   <option value="">— neasignat —</option>
                   {users.map((u) => (
@@ -204,12 +216,12 @@ export default function DevicesPage() {
                     </option>
                   ))}
                 </select>
-              </label>
+              </div>
 
-              <div className="modal-actions">
-                <button type="button" onClick={() => !submitting && setIsOpen(false)}>Cancel</button>
-                <button type="submit" disabled={submitting}>
-                  {submitting ? "Se salvează..." : "Save"}
+              <div className="modal-footer-actions">
+                <button type="button" className="btn btn-secondary" onClick={() => !submitting && setIsOpen(false)}>Anulează</button>
+                <button type="submit" className="btn btn-primary" disabled={submitting}>
+                  {submitting ? <><i className="fas fa-spinner fa-spin"></i> Salvare...</> : <><i className="fas fa-save"></i> Salvează</>}
                 </button>
               </div>
             </form>

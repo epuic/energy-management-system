@@ -35,7 +35,7 @@ public class DeviceService {
         Device d = repo.findById(id).orElseThrow();
         d.setName(dto.name());
         d.setMaximumConsumption(dto.maximumConsumption());
-        d.setUserId(dto.userId());
+        d.setUserUsername(dto.username());
         return toDto(repo.save(d));
     }
 
@@ -52,11 +52,12 @@ public class DeviceService {
         Device d = new Device();
         d.setName(dto.name());
         d.setMaximumConsumption(dto.maximumConsumption());
-        d.setUserId(dto.userId());
+        d.setUserUsername(dto.username());
+        d.setUserId(dto.userId()); // Folosim ID-ul numeric primit din Frontend
         return d;
     }
 
     private DeviceDto toDto(Device d) {
-        return new DeviceDto(d.getId(), d.getName(), d.getMaximumConsumption(), d.getUserId());
+        return new DeviceDto(d.getId(), d.getName(), d.getMaximumConsumption(), d.getUserId(),d.getUserUsername());
     }
 }

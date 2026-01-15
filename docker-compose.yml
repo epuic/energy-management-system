@@ -1,111 +1,173 @@
+version: '3.8'
 
 services:
+  # --- Assignment 3: Chat & WebSocket Microservice ---
+  chat-service:
+    build:
+      context: ./chat-service
+    image: ems-chat-service:latest
+    ports:
+      - "8086:8086"
+    networks:
+      - ems
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    environment:
+      - SERVER_PORT=8086
+      - GEMINI_API_KEY=AIzaSyBo5ZyhySrIu0-KwBr215E_B7qOC34dz-Y
+
+  # --- Assignment 1: Auth Microservice ---
+  auth-service:
+    build:
+      context: ./auth-service
+    image: ems-auth-service:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/ems_auth
+      SPRING_DATASOURCE_USERNAME: ems
+      SPRING_DATASOURCE_PASSWORD: ems
+      JWT_SECRET: super-secret-key-1234567890-very-secure
+      SERVER_PORT: 8083
+    networks:
+      - ems
+
+  # --- Assignment 1: User Microservice ---
+  user-service:
+    build:
+      context: ./user-service
+    image: ems-user-service:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/ems_user
+      SPRING_DATASOURCE_USERNAME: ems
+      SPRING_DATASOURCE_PASSWORD: ems
+      JWT_SECRET: super-secret-key-1234567890-very-secure
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin
+      SERVER_PORT: 8081
+    networks:
+      - ems
+
+  # --- Assignment 1: Device Microservice ---
+  device-service:
+    build:
+      context: ./device-service
+    image: ems-device-service:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://device-db:5432/ems_device
+      SPRING_DATASOURCE_USERNAME: ems
+      SPRING_DATASOURCE_PASSWORD: ems
+      JWT_SECRET: super-secret-key-1234567890-very-secure
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin
+      SERVER_PORT: 8082
+    networks:
+      - ems
+
+  # --- Assignment 1: API Gateway ---
+  gateway-service:
+    build:
+      context: ./gateway-service
+    image: ems-gateway-service:latest
+    environment:
+      JWT_SECRET: super-secret-key-1234567890-very-secure
+      SERVER_PORT: 8080
+      AUTH_URI: http://auth-service:8083
+      USER_URI: http://user-service:8081
+      DEVICE_URI: http://device-service:8082
+    ports:
+      - "8080:8080"
+    networks:
+      - ems
+
+  # --- Assignment 2 & 3: Monitoring Microservice ---
+  monitoring-service:
+    build:
+      context: ./monitoring-service
+    image: ems-monitoring-service:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://monitoring-db:5432/ems_monitoring
+      SPRING_DATASOURCE_USERNAME: ems
+      SPRING_DATASOURCE_PASSWORD: ems
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin
+      SERVER_PORT: 8084
+    deploy:
+      replicas: 2
+    networks:
+      - ems
+
+  # --- Frontend ---
+  frontend:
+    build:
+      context: ./frontend
+    image: ems-frontend:latest
+    ports:
+      - "3000:80"
+    networks:
+      - ems
+
+  # --- Databases ---
   user-db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${USER_DB}
-    ports:
-      - "5433:5432"
+      POSTGRES_USER: ems
+      POSTGRES_PASSWORD: ems
+      POSTGRES_DB: ems_user
     networks:
       - ems
 
   device-db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${DEVICE_DB}
-    ports:
-      - "5434:5432"
+      POSTGRES_USER: ems
+      POSTGRES_PASSWORD: ems
+      POSTGRES_DB: ems_device
     networks:
       - ems
 
   auth-db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${AUTH_DB}
+      POSTGRES_USER: ems
+      POSTGRES_PASSWORD: ems
+      POSTGRES_DB: ems_auth
+    networks:
+      - ems
+
+  monitoring-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ems
+      POSTGRES_PASSWORD: ems
+      POSTGRES_DB: ems_monitoring
+    networks:
+      - ems
+
+  # --- Message Broker ---
+  rabbitmq:
+    image: rabbitmq:3-management
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
-      - "5435:5432"
-    networks:
-      - ems
-
-  auth-service:
-    build:
-      context: ./auth-service
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/${AUTH_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      SERVER_PORT: 8083
-    depends_on:
-      - auth-db
-    networks:
-      - ems
-
-  user-service:
-    build:
-      context: ./user-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/${USER_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      SERVER_PORT: 8081
-    depends_on:
-      - user-db
-    networks:
-      - ems
-
-  device-service:
-    build:
-      context: ./device-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://device-db:5432/${DEVICE_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      SERVER_PORT: 8082
-    depends_on:
-      - device-db
-    networks:
-      - ems
-
-  gateway-service:
-    build:
-      context: ./gateway-service
-    environment:
-      JWT_SECRET: ${JWT_SECRET}
-      SERVER_PORT: 8080
-      AUTH_URI: http://auth-service:8083
-      USER_URI: http://user-service:8081
-      DEVICE_URI: http://device-service:8082
-    depends_on:
-      - auth-service
-      - user-service
-      - device-service
-    ports:
-      - "8080:8080"
-    networks:
-      - ems
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: ems-frontend:latest
-    container_name: ems-frontend
-    depends_on:
-      - gateway-service
-    ports:
-      - "3000:80"
-    restart: unless-stopped
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
     networks:
       - ems
 
 networks:
-  ems: {}
+  ems:
+    driver: overlay
+    attachable: true

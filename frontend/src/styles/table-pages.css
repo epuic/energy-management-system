@@ -1,0 +1,110 @@
+.data-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.data-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-page-header h1 {
+  font-size: 2rem;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.data-table th, .data-table td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* Colțuri rotunjite */
+.data-table thead tr:first-child th:first-child { border-top-left-radius: var(--border-radius); }
+.data-table thead tr:first-child th:last-child { border-top-right-radius: var(--border-radius); }
+
+.data-table tbody tr:hover {
+  background-color: #f6f8f9;
+}
+
+/* Coloane specifice */
+.td-id { width: 5%; font-weight: 600; color: var(--color-primary); }
+.th-actions, .td-actions { width: 15%; text-align: right; }
+.th-actions { text-align: center; }
+.td-actions { display: flex; justify-content: center; gap: 10px; }
+
+.td-consumption { font-family: monospace; }
+.td-status { font-weight: 600; }
+
+/* Butoane de acțiune în tabel (iconițe) */
+.btn-edit { background-color: var(--color-accent); color: white; }
+.btn-edit:hover { background-color: #008c9e; }
+
+/* Badge-uri de roluri */
+.role-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.role-admin { background-color: var(--color-danger); color: white; }
+.role-client { background-color: var(--color-success); color: white; }
+
+/* Chip pentru utilizator asignat */
+.user-assignment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: var(--color-primary);
+}
+
+.table-footer-info {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border-color);
+  background-color: #fcfdfe;
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  color: var(--color-secondary);
+}

@@ -5,5 +5,6 @@ public record DeviceDto(
     Long id,
     String name,
     Double maximumConsumption,
-    Long userId
+    Long userId,      // Necesar pentru dropdown-ul din Frontend
+    String username
 ){}

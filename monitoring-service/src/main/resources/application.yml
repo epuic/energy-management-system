@@ -1,0 +1,22 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:postgresql://monitoring-db:5432/${MONITORING_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update   # sau validate, cum preferi
+    show-sql: true
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: admin
+    password: admin
+
+app:
+  queues:
+    device-data: device-data-queue

@@ -8,33 +8,37 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login", { replace: true }); // redirecționează la login
+    navigate("/login", { replace: true });
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="ems-dashboard-container">
       <header className="dashboard-header">
-        <h2 className="dashboard-title">Energy Management System</h2>
-        <div className="dashboard-user">
-          <span>{user?.username}</span>
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
+        <h1 className="dashboard-title">Energy Management System</h1>
+        <div className="user-profile">
+          <span className="user-name">Salut, {user?.username}!</span>
+          <button className="btn btn-secondary" onClick={handleLogout}>
+            <i className="fas fa-sign-out-alt"></i> Logout
           </button>
         </div>
       </header>
 
-      <main className="dashboard-content">
-        <h3>Bine ai venit, {user?.username}!</h3>
-        <p>Rol: {user?.roles?.join(", ") || "CLIENT"}</p>
-
-        <div className="dashboard-actions">
-          <p>Aici poți adăuga mai târziu pagini pentru:</p>
-          <ul>
-            <li>Vizualizare și gestionare device-uri</li>
-            <li>Administrare utilizatori (ADMIN)</li>
-            <li>Statistici consum energie</li>
-          </ul>
+      <main className="dashboard-content-area">
+        <div className="welcome-card">
+          <h2 className="welcome-title">Panoul de Control Principal</h2>
+          <p className="user-role-display">
+            Rol: <span className={`role-badge role-${user?.roles?.[0]?.toLowerCase() || "client"}`}>{user?.roles?.join(", ") || "CLIENT"}</span>
+          </p>
         </div>
+
+        <section className="dashboard-feature-section">
+          <h3>🚀 Funcționalități Disponibile</h3>
+          <ul className="feature-list">
+            <li>Vizualizare și gestionare device-uri personale (Client)</li>
+            <li>Administrare utilizatori și device-uri (ADMIN)</li>
+            <li>Statistici consum energie și rapoarte</li>
+          </ul>
+        </section>
       </main>
     </div>
   );

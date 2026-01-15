@@ -1,13 +1,16 @@
 import http from "./http";
-import { listUsersApi } from "./userMgmtApi"; // ← adăugăm asta
+import { listUsersApi } from "./userMgmtApi";
 
 export const listDevicesApi = () => http.get("/api/devices");
 export const getDeviceApi = (id) => http.get(`/api/devices/${id}`);
-export const createDeviceApi = ({ name, maximumConsumption, userId }) =>
-  http.post("/api/devices", { name, maximumConsumption, userId });
 
-export const updateDeviceApi = (id, { name, maximumConsumption, userId }) =>
-  http.put(`/api/devices/${id}`, { name, maximumConsumption, userId });
+// ADAUGĂ 'username' AICI:
+export const createDeviceApi = ({ name, maximumConsumption, userId, username }) =>
+  http.post("/api/devices", { name, maximumConsumption, userId, username });
+
+// ȘI AICI:
+export const updateDeviceApi = (id, { name, maximumConsumption, userId, username }) =>
+  http.put(`/api/devices/${id}`, { name, maximumConsumption, userId, username });
 
 export const deleteDeviceApi = (id) => http.delete(`/api/devices/${id}`);
 

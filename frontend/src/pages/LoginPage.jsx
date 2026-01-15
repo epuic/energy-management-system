@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/login.css";
+import "../styles/auth.css"; // Am combinat login/register in auth.css
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -20,27 +20,54 @@ export default function LoginPage() {
       await login(form.username, form.password);
       navigate("/", { replace: true });
     } catch {
-      setError("User sau parolă incorecte.");
+      setError("User sau parolă incorecte. Reîncearcă.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <h1 className="login-title">Autentificare</h1>
-      <form className="login-form" onSubmit={onSubmit}>
-        <input name="username" placeholder="Username" value={form.username} onChange={onChange} />
-        <input name="password" type="password" placeholder="Parolă" value={form.password} onChange={onChange} />
-        <button className="login-button" type="submit" disabled={loading}>
-          {loading ? "Se conectează..." : "Login"}
-        </button>
-        {error && <p className="login-error">{error}</p>}
-      </form>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1 className="auth-title">Autentificare</h1>
+        <form className="auth-form" onSubmit={onSubmit}>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              placeholder="Introdu username"
+              value={form.username}
+              onChange={onChange}
+              autoFocus
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Parolă</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Introdu parola"
+              value={form.password}
+              onChange={onChange}
+              required
+            />
+          </div>
 
-      <div className="login-register-link">
-        <span>Nu ai cont?</span>
-        <Link to="/register">Înregistrează-te</Link>
+          {error && <p className="alert-error">{error}</p>}
+
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-sign-in-alt"></i>}
+            {loading ? " Se conectează..." : " Login"}
+          </button>
+        </form>
+
+        <div className="auth-footer-link">
+          <span>Nu ai cont?</span>
+          <Link to="/register" className="footer-link">Înregistrează-te acum</Link>
+        </div>
       </div>
     </div>
   );

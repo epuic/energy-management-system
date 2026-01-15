@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/devices/user/**").hasAnyRole("CLIENT", "ADMIN")
-                        .requestMatchers("/api/devices/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/devices/**").hasAnyRole("ADMIN", "CLIENT")
                         .anyRequest().authenticated()
                 );
         return http.build();

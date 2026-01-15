@@ -16,5 +16,7 @@ public class Device {
     private String name;
     @Column(nullable = false)
     private Double maximumConsumption;
-    private Long userId;
+    @Column(nullable = false)
+    private Long userId;     // Necesar pentru dropdown-ul din Frontend
+    private String userUsername;
 }
